@@ -1,0 +1,10 @@
+#!/bin/bash
+HADOOP_CUR=/usr/hdp/current/
+HADOOP_EXE=$HADOOP_CUR/hadoop-client/bin/yarn
+HADOOP_STREAM_JAR=/usr/lib/hadoop-mapreduce/hadoop-streaming.jar
+FILES=$1
+INPUT=$2
+OUTPUT=$3
+MAPPER=$4
+
+yarn jar $HADOOP_STREAM_JAR -files $FILES -D mapred.reduce.tasks=0 -input $INPUT -output $OUTPUT -mapper $MAPPER
