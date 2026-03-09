@@ -1,9 +1,9 @@
 #!/opt/conda/envs/dsenv/bin/python
-from pyspark.ml.feature import RegexTokenizer, StopWordsRemover, HashingTF
+from pyspark.ml.feature import Tokenizer, StopWordsRemover, HashingTF
 from pyspark.ml.regression import LinearRegression
 from pyspark.ml import Pipeline
 
-tokenizer = RegexTokenizer(inputCol="reviewText", outputCol="words", pattern="\\W")
+tokenizer = Tokenizer(inputCol="reviewText", outputCol="words")
 
 swr = StopWordsRemover(inputCol="words", outputCol="filtered_words")
 
