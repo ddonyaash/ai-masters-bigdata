@@ -1,28 +1,35 @@
 #!/opt/conda/envs/dsenv/bin/python
 import sys
 from pyspark.sql import SparkSession
-from pyspark.sql.types import *
 from pyspark.ml import PipelineModel
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType, LongType
 
 spark = SparkSession.builder.getOrCreate()
 spark.sparkContext.setLogLevel('WARN')
 
-path_to_saved_model = sys.argv[1]
-path_to_test_dataset = sys.argv[2]
-path_to_save_inference = sys.argv[3]
+def main():
+    model_path = sys.argv[1]
+    test_path = sys.argv[2]
+    prediction_path = sys.argv[3]
 
-model = PipelineModel.load(path_to_saved_model)
+    schema = StructType([
+        StructField("id", LongType(), True),
+        StructField("reviewText", StringType(), True)
+    ])
 
-test_schema = StructType([
-    StructField("id", StringType()),
-    StructField("reviewText", StringType())
-])
+    model = PipelineModel.load(model_path)
 
-test = spark.read.json(path_to_test_dataset, schema=test_schema)
-test = test.fillna({'reviewText': ''})
+    test_df = spark.read.json(test_path, schema=schema) \
+        .fillna({"reviewText": "missingreview"})
 
-predictions = model.transform(test)
+    predictions = model.transform(test_df)
 
-predictions.select("id", "prediction").write.mode("overwrite").save(path_to_save_inference)
+    predictions.select("id", "prediction") \
+        .coalesce(1) \
+        .write.mode("overwrite") \
+        .csv(prediction_path)
 
-spark.stop()
+    spark.stop()
+
+if __name__ == "__main__":
+    main()
