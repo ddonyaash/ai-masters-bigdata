@@ -6,8 +6,6 @@ from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOpe
 
 pyspark_python = "/opt/conda/envs/dsenv/bin/python"
 
-# Создаем одну базовую переменную-шаблон. 
-# Airflow сам подставит значение base_dir в момент исполнения каждой задачи.
 BASE = "{{ dag_run.conf.get('base_dir', '/home/users/ddonyaash/ai-masters-bigdata/projects/6') }}"
 
 with DAG(
@@ -36,7 +34,6 @@ with DAG(
 
     train_task = BashOperator(
         task_id="train_task",
-        # Для BashOperator шаблоны работают идеально
         bash_command=f"{pyspark_python} {BASE}/train.py {BASE}/ddonyaash_train_out_local {BASE}/6.joblib"
     )
 
